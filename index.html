@@ -25,7 +25,6 @@
             perspective: 1000px;
         }
 
-        /* Contenedor Principal con Efecto 3D */
         .glass-card {
             background: var(--card-dark);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -42,7 +41,6 @@
             box-shadow: 0 0 30px var(--cian-glow);
         }
 
-        /* Borde Biselado con Animación */
         .bevel-border {
             position: relative;
             padding: 2px;
@@ -69,7 +67,6 @@
             box-shadow: 0 0 15px var(--mutual-green);
         }
 
-        /* Estilos de inputs oscuros */
         .input-dark {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -111,25 +108,18 @@
         input[type="checkbox"], input[type="radio"] {
             accent-color: var(--cian-intenso);
         }
-
-        footer a:hover {
-            color: var(--cian-intenso);
-            text-shadow: 0 0 8px var(--cian-glow);
-        }
     </style>
 </head>
 <body class="p-4 md:p-12">
 
     <div class="max-w-4xl mx-auto w-full bevel-border">
         <div class="glass-card flex-grow flex flex-col">
-            <!-- Header Corregido: Se eliminó el icono del rayo -->
+            <!-- Header -->
             <div class="bg-[#001a2e] p-8 text-white relative border-b border-white/10">
                 <div class="flex flex-col items-center gap-2">
-                    <!-- Solo texto del Logo DATAFLOW IA -->
                     <div class="mb-2">
                         <span class="logo-cian text-2xl tracking-[0.2em] font-black uppercase">DATAFLOW IA</span>
                     </div>
-                    
                     <div class="text-center">
                         <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent">Levantamiento e-Learning</h1>
                         <p class="text-blue-400 text-sm mt-2 font-medium tracking-widest opacity-80 uppercase">Estándar de Calidad Dataflow IA & Mutual</p>
@@ -169,7 +159,7 @@
                     </div>
                 </div>
 
-                <!-- Sección 2: Duración -->
+                <!-- Sección 2: Duración y Alcance -->
                 <div class="step-content" data-step="2">
                     <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
                         <span class="text-[var(--cian-intenso)]">02</span> Duración y Alcance
@@ -185,13 +175,28 @@
                             </div>
                             <input type="hidden" name="duracion_val" id="duracion_val">
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-400 mb-2">Profundidad de contenidos</label>
-                            <select name="profundidad" id="profundidad" class="w-full p-4 rounded-xl input-dark">
-                                <option value="Sensibilización">Básico / Sensibilización</option>
-                                <option value="Casos Aplicados">Intermedio / Casos prácticos</option>
-                                <option value="Herramientas Prácticas">Avanzado / Herramientas de acción</option>
-                            </select>
+                        
+                        <div class="space-y-4">
+                            <label class="block text-sm font-semibold text-gray-400">Profundidad de contenidos</label>
+                            <div class="grid grid-cols-1 gap-3">
+                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <input type="checkbox" name="profundidad" value="Básico (3 preguntas)" class="w-5 h-5">
+                                    <span class="ml-3">Básico con cuestionario de 3 preguntas</span>
+                                </label>
+                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <input type="checkbox" name="profundidad" value="Profundo (5 o más preguntas)" class="w-5 h-5">
+                                    <span class="ml-3">Profundo con cuestionario de 5 o más preguntas</span>
+                                </label>
+                                <label class="flex flex-col p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="profundidad" value="Otro" id="checkOtroProfundidad" class="w-5 h-5" onchange="toggleDetalle(this, 'containerOtroProfundidad')">
+                                        <span class="ml-3 font-semibold">Otro</span>
+                                    </div>
+                                    <div id="containerOtroProfundidad" class="mt-4 hidden">
+                                        <textarea name="detalle_otro_profundidad" id="detalle_otro_profundidad" class="w-full p-4 rounded-xl input-dark text-sm" rows="2" placeholder="Detalle la profundidad requerida..."></textarea>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -207,39 +212,67 @@
                     </div>
                 </div>
 
+                <!-- Sección 4: Evaluación -->
                 <div class="step-content" data-step="4">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">04</span> Evaluación</h2>
-                    <div class="space-y-4">
-                        <label class="block text-sm font-semibold text-gray-400">Finalidad de la evaluación</label>
-                        <select name="uso_evaluacion" class="w-full p-4 rounded-xl input-dark">
-                            <option value="Verificación">Verificación de aprendizaje</option>
-                            <option value="Certificación">Certificación Formal</option>
-                        </select>
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+                        <span class="text-[var(--cian-intenso)]">04</span> Evaluación
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="space-y-4">
+                            <label class="block text-sm font-semibold text-gray-400">Tipo de evaluación (marque una o más)</label>
+                            <div class="grid grid-cols-1 gap-3">
+                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <input type="checkbox" name="tipo_evaluacion" value="Cerradas 3 a 5" class="w-5 h-5">
+                                    <span class="ml-3">1) Preguntas con respuestas cerradas, 3 a 5</span>
+                                </label>
+                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <input type="checkbox" name="tipo_evaluacion" value="Mixtas" class="w-5 h-5">
+                                    <span class="ml-3">2) Preguntas mixtas cerradas y para desarrollo</span>
+                                </label>
+                                <label class="flex flex-col p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" name="tipo_evaluacion" value="Otro" id="checkOtroEvaluacion" class="w-5 h-5" onchange="toggleDetalle(this, 'containerOtroEvaluacion')">
+                                        <span class="ml-3 font-semibold">3) Otro</span>
+                                    </div>
+                                    <div id="containerOtroEvaluacion" class="mt-4 hidden">
+                                        <textarea name="detalle_otro_evaluacion" id="detalle_otro_evaluacion" class="w-full p-4 rounded-xl input-dark text-sm" rows="2" placeholder="Detalle el tipo de evaluación..."></textarea>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-400 mb-2">Finalidad de la evaluación</label>
+                            <select name="uso_evaluacion" class="w-full p-4 rounded-xl input-dark">
+                                <option value="Verificación">Verificación de aprendizaje</option>
+                                <option value="Certificación">Certificación Formal</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Secciones 5 a 7 -->
                 <div class="step-content" data-step="5">
                     <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">05</span> Plazos</h2>
                     <div class="space-y-4">
-                        <label class="block text-sm font-semibold text-gray-400">Fecha estimada de lanzamiento</label>
-                        <input type="date" name="fecha_limite" class="w-full p-4 rounded-xl input-dark">
+                         <label class="block text-sm font-semibold text-gray-400">Fecha estimada de lanzamiento</label>
+                         <input type="date" name="fecha_limite" class="w-full p-4 rounded-xl input-dark">
                     </div>
                 </div>
-
                 <div class="step-content" data-step="6">
                     <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">06</span> Entrega</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="entrega" value="SCORM" class="mb-2 block mx-auto"> SCORM</label>
-                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="entrega" value="Editables" class="mb-2 block mx-auto"> Editables</label>
+                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center cursor-pointer hover:bg-white/10 transition">
+                            <input type="checkbox" name="entrega" value="SCORM" class="mb-2 block mx-auto"> SCORM
+                        </label>
+                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center cursor-pointer hover:bg-white/10 transition">
+                            <input type="checkbox" name="entrega" value="Editables" class="mb-2 block mx-auto"> Editables
+                        </label>
                     </div>
                 </div>
-
                 <div class="step-content" data-step="7">
                     <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">07</span> Información Final</h2>
-                    <div class="space-y-4">
-                        <label class="block text-sm font-semibold text-gray-400">Comentarios adicionales o requerimientos LMS</label>
-                        <textarea name="requerimientos_lms" rows="4" class="w-full p-4 rounded-xl input-dark" placeholder="Detalle aquí cualquier especificación técnica..."></textarea>
-                    </div>
+                    <textarea name="requerimientos_lms" rows="4" class="w-full p-4 rounded-xl input-dark" placeholder="Especificaciones técnicas..."></textarea>
                 </div>
 
                 <!-- Botonera -->
@@ -258,28 +291,11 @@
                     </svg>
                 </div>
                 <h2 class="text-4xl font-black text-white mb-4">¡Levantamiento Enviado!</h2>
-                <p class="text-gray-400 text-lg">Se ha generado la solicitud para <strong>contacto@dataflowia.com</strong>.</p>
-                <button onclick="location.reload()" class="mt-10 px-8 py-3 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition font-bold text-gray-300">Iniciar Nuevo Registro</button>
+                <p class="text-gray-400 mb-6">Se ha intentado abrir su aplicación de correo. Por favor, asegúrese de hacer clic en "Enviar" en su gestor de e-mail.</p>
+                <button onclick="location.reload()" class="mt-10 px-8 py-3 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition font-bold text-gray-300">Nuevo Registro</button>
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="max-w-4xl mx-auto w-full text-center text-gray-500 text-sm py-12">
-        <div class="flex flex-col md:flex-row justify-center items-center gap-6 mb-6">
-            <a href="https://www.dataflowia.com" target="_blank" class="font-bold tracking-widest text-gray-400 hover:text-[var(--cian-intenso)] transition uppercase">WWW.DATAFLOWIA.COM</a>
-            <span class="hidden md:block text-gray-700">|</span>
-            <a href="mailto:contacto@dataflowia.com" class="font-bold tracking-widest text-gray-400 hover:text-[var(--cian-intenso)] transition uppercase">CONTACTO@DATAFLOWIA.COM</a>
-        </div>
-        <div class="flex flex-col items-center gap-2 opacity-60">
-            <p>© 2026 DATAFLOW IA. Todos los derechos reservados.</p>
-            <div class="flex gap-4 mt-2">
-                <div class="w-8 h-1 bg-[var(--cian-intenso)] rounded-full"></div>
-                <div class="w-8 h-1 bg-[#8cc63f] rounded-full"></div>
-                <div class="w-8 h-1 bg-[#00548f] rounded-full"></div>
-            </div>
-        </div>
-    </footer>
 
     <script>
         let currentStep = 1;
@@ -291,13 +307,20 @@
         const progressBar = document.getElementById('progressBar');
         const successMessage = document.getElementById('successMessage');
 
+        function toggleDetalle(checkbox, containerId) {
+            const container = document.getElementById(containerId);
+            if (checkbox.checked) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
         function updateStep() {
             document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
             document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
-
             const progress = (currentStep / totalSteps) * 100;
             progressBar.style.width = `${progress}%`;
-
             prevBtn.classList.toggle('hidden', currentStep === 1);
             if (currentStep === totalSteps) {
                 nextBtn.classList.add('hidden');
@@ -308,13 +331,8 @@
             }
         }
 
-        nextBtn.addEventListener('click', () => {
-            if (currentStep < totalSteps) { currentStep++; updateStep(); }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            if (currentStep > 1) { currentStep--; updateStep(); }
-        });
+        nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) { currentStep++; updateStep(); } });
+        prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; updateStep(); } });
 
         function selectOption(btn, name, value) {
             btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
@@ -327,25 +345,64 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
             
-            let body = `LEVANAMIENTO E-LEARNING DATAFLOW IA\n`;
-            body += `====================================\n\n`;
-            body += `CURSO: ${data.nombre_curso || 'Sin nombre'}\n`;
-            body += `OBJETIVO: ${data.tema_foco || 'No descrito'}\n`;
-            body += `DURACIÓN: ${data.duracion_val || 'No definida'}\n`;
-            body += `FECHA LÍMITE: ${data.fecha_limite || 'No definida'}\n\n`;
-            body += `RECURSOS ADICIONALES: ${Array.from(document.querySelectorAll('input[name="recursos"]:checked')).map(i => i.value).join(', ') || 'Ninguno'}\n`;
-            body += `TIPO ENTREGA: ${Array.from(document.querySelectorAll('input[name="entrega"]:checked')).map(i => i.value).join(', ') || 'No especificada'}\n\n`;
-            body += `COMENTARIOS: ${data.requerimientos_lms || 'Sin comentarios'}`;
+            // Recoger profundidades
+            const profundidades = Array.from(document.querySelectorAll('input[name="profundidad"]:checked')).map(i => {
+                if(i.value === 'Otro') return `Otro (${document.getElementById('detalle_otro_profundidad').value})`;
+                return i.value;
+            }).join(', ');
+
+            // Recoger evaluaciones
+            const tiposEvaluacion = Array.from(document.querySelectorAll('input[name="tipo_evaluacion"]:checked')).map(i => {
+                if(i.value === 'Otro') return `Otro (${document.getElementById('detalle_otro_evaluacion').value})`;
+                return i.value;
+            }).join(', ');
+
+            // Recoger recursos
+            const recursos = Array.from(document.querySelectorAll('input[name="recursos"]:checked')).map(i => i.value).join(', ');
+            
+            // Recoger entregables
+            const entrega = Array.from(document.querySelectorAll('input[name="entrega"]:checked')).map(i => i.value).join(', ');
+
+            // Construcción del cuerpo del mensaje mejorada
+            let body = `FORMULARIO DE LEVANTAMIENTO E-LEARNING\n`;
+            body += `========================================\n\n`;
+            body += `1. DATOS GENERALES\n`;
+            body += `- Nombre Curso: ${data.nombre_curso || 'N/A'}\n`;
+            body += `- Tema/Foco: ${data.tema_foco || 'N/A'}\n\n`;
+            
+            body += `2. DURACIÓN Y ALCANCE\n`;
+            body += `- Duración: ${data.duracion_val || 'No seleccionada'}\n`;
+            body += `- Profundidad: ${profundidades || 'Ninguna seleccionada'}\n\n`;
+            
+            body += `3. RECURSOS REQUERIDOS\n`;
+            body += `- Items: ${recursos || 'Ninguno'}\n\n`;
+            
+            body += `4. EVALUACIÓN\n`;
+            body += `- Tipos: ${tiposEvaluacion || 'Ninguno'}\n`;
+            body += `- Finalidad: ${data.uso_evaluacion || 'N/A'}\n\n`;
+            
+            body += `5. PLAZOS\n`;
+            body += `- Fecha Lanzamiento: ${data.fecha_limite || 'N/A'}\n\n`;
+            
+            body += `6. ENTREGA\n`;
+            body += `- Formato: ${entrega || 'N/A'}\n\n`;
+            
+            body += `7. INFORMACIÓN FINAL\n`;
+            body += `- Requerimientos: ${data.requerimientos_lms || 'Sin comentarios'}\n\n`;
+            body += `========================================`;
 
             const mailtoLink = `mailto:contacto@dataflowia.com?subject=Levantamiento e-Learning: ${encodeURIComponent(data.nombre_curso || 'Nuevo Proyecto')}&body=${encodeURIComponent(body)}`;
             
+            // Mostramos el mensaje de éxito antes de disparar el link
             form.classList.add('hidden');
             progressBar.parentElement.classList.add('hidden');
             successMessage.classList.remove('hidden');
 
+            // Disparamos la apertura del gestor de correo
             window.location.href = mailtoLink;
         });
 
+        // Efecto 3D
         const card = document.querySelector('.glass-card');
         document.addEventListener('mousemove', (e) => {
             if (window.innerWidth < 768) return;
@@ -353,10 +410,7 @@
             const yAxis = (window.innerHeight / 2 - e.pageY) / 60;
             card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
         });
-
-        document.addEventListener('mouseleave', () => {
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-        });
+        document.addEventListener('mouseleave', () => card.style.transform = `rotateY(0deg) rotateX(0deg)`);
     </script>
 </body>
 </html>
