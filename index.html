@@ -3,422 +3,1075 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Levantamiento de Cursos e-Learning - DATAFLOW IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Levantamiento e-Learning — DATAFLOW IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --mutual-blue: #00548f;
-            --mutual-green: #8cc63f;
-            --bg-dark: #0a0f18;
-            --card-dark: #161e2d;
-            --cian-intenso: #00e5ff;
-            --cian-glow: rgba(0, 229, 255, 0.4);
+            --bg: #04080f;
+            --surface: #0b1220;
+            --surface2: #101929;
+            --border: rgba(255,255,255,0.06);
+            --border-active: rgba(0,220,255,0.6);
+            --cyan: #00dcff;
+            --cyan-dim: rgba(0,220,255,0.12);
+            --cyan-glow: rgba(0,220,255,0.3);
+            --green: #39e58c;
+            --green-dim: rgba(57,229,140,0.12);
+            --gold: #f0b429;
+            --text: #e8edf5;
+            --text-muted: #5c6e8a;
+            --text-dim: #8fa3bf;
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --radius: 16px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-dark);
-            color: #e2e8f0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            perspective: 1000px;
+            align-items: center;
+            padding: 24px 16px 60px;
+            overflow-x: hidden;
         }
 
-        .glass-card {
-            background: var(--card-dark);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+        /* ─── CANVAS BG ─── */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── LAYOUT ─── */
+        .shell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 780px;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            text-align: center;
+            padding: 56px 32px 40px;
+            position: relative;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(0,220,255,0.08), rgba(0,220,255,0.02));
+            border: 1px solid rgba(0,220,255,0.25);
+            padding: 8px 20px;
+            border-radius: 100px;
+            margin-bottom: 28px;
+        }
+
+        .brand-badge .dot {
+            width: 7px; height: 7px;
+            background: var(--cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--cyan);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        .brand-badge span {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        .header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(28px, 5vw, 44px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 20%, #a8c8e8 60%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 14px;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        /* ─── STEP INDICATORS ─── */
+        .step-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .step-dot {
+            width: 32px; height: 4px;
+            background: var(--surface2);
+            border-radius: 4px;
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
 
-        .glass-card:hover {
-            transform: translateY(-5px) rotateX(2deg) rotateY(-1deg);
-            border-color: var(--cian-intenso);
-            box-shadow: 0 0 30px var(--cian-glow);
+        .step-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan-glow);
         }
 
-        .bevel-border {
-            position: relative;
-            padding: 2px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,229,255,0.5) 50%, rgba(0,0,0,0.5) 100%);
+        .step-dot.done {
+            background: linear-gradient(90deg, var(--green), rgba(57,229,140,0.5));
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
         }
 
-        .step-content {
-            display: none;
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 40% at 50% -10%, rgba(0,220,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
         }
 
-        .step-content.active {
-            display: block;
-            animation: slideUp 0.6s ease-out;
+        /* ─── PROGRESS ─── */
+        .progress-track {
+            height: 2px;
+            background: rgba(255,255,255,0.04);
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .progress-bar {
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
             transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 15px var(--mutual-green);
+            box-shadow: 0 0 12px var(--cyan-glow);
         }
 
-        .input-dark {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            transition: all 0.3s ease;
+        /* ─── FORM BODY ─── */
+        .form-body {
+            padding: 40px 40px 32px;
         }
 
-        .input-dark:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--cian-intenso);
-            box-shadow: 0 0 10px var(--cian-glow);
+        @media (max-width: 600px) { .form-body { padding: 28px 20px 24px; } }
+
+        /* ─── SECTION HEADER ─── */
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .section-num {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 0.15em;
+            background: var(--cyan-dim);
+            border: 1px solid rgba(0,220,255,0.2);
+            padding: 5px 10px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        .section-title small {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--text-muted);
+            font-family: var(--font-body);
+            margin-top: 4px;
+            letter-spacing: 0;
+        }
+
+        /* ─── FIELDS ─── */
+        .field { margin-bottom: 24px; }
+
+        .field label, .field-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .field input[type="text"],
+        .field input[type="date"],
+        .field textarea,
+        .field select {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 15px;
+            transition: var(--transition);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .field input[type="date"] {
+            color-scheme: dark;
+        }
+
+        .field select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235c6e8a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 42px;
+        }
+
+        .field select option { background: #101929; }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: var(--cyan);
+            background: rgba(0,220,255,0.04);
+            box-shadow: 0 0 0 3px rgba(0,220,255,0.08);
+        }
+
+        .field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+        .field input::placeholder,
+        .field textarea::placeholder { color: var(--text-muted); }
+
+        /* ─── OPTION BUTTONS ─── */
+        .option-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .option-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+        @media (max-width: 520px) {
+            .option-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+        }
+
+        .opt-btn {
+            padding: 14px 12px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-dim);
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .opt-btn:hover {
+            border-color: rgba(0,220,255,0.3);
+            color: var(--text);
+            background: rgba(0,220,255,0.04);
+        }
+
+        .opt-btn.selected {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            font-weight: 600;
+            box-shadow: 0 0 16px rgba(0,220,255,0.12);
+        }
+
+        /* ─── CHECK CARDS ─── */
+        .check-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 18px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .check-card:hover {
+            border-color: rgba(0,220,255,0.25);
+            background: rgba(0,220,255,0.03);
+        }
+
+        .check-card input[type="checkbox"] { display: none; }
+
+        .check-box {
+            width: 20px; height: 20px;
+            border: 1.5px solid var(--text-muted);
+            border-radius: 5px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .check-box svg { opacity: 0; transform: scale(0.5); transition: var(--transition); }
+
+        .check-card input:checked ~ .check-box,
+        .check-card.checked .check-box {
+            background: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        .check-card input:checked ~ .check-box svg,
+        .check-card.checked .check-box svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .check-card input:checked ~ .check-label,
+        .check-card.checked .check-label { color: var(--text); }
+
+        .check-label {
+            color: var(--text-dim);
+            font-size: 14px;
+            font-weight: 400;
+            transition: var(--transition);
+            line-height: 1.4;
+        }
+
+        .check-card-expand {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 28px 0;
+        }
+
+        /* ─── NAVIGATION ─── */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 40px;
+            border-top: 1px solid var(--border);
+            background: rgba(255,255,255,0.01);
+        }
+
+        @media (max-width: 600px) { .nav-bar { padding: 20px; } }
+
+        .step-counter {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        .step-counter strong { color: var(--text-dim); font-weight: 600; }
+
+        .nav-right { display: flex; gap: 10px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
             outline: none;
         }
 
-        .logo-cian {
-            color: var(--cian-intenso);
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-ghost:hover {
+            border-color: rgba(255,255,255,0.15);
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0090b8, var(--cyan));
+            color: #001820;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(0,220,255,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(0,220,255,0.35);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1ab76a, var(--green));
+            color: #001a0e;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(57,229,140,0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(57,229,140,0.35);
+        }
+
+        .btn svg { width: 16px; height: 16px; }
+
+        /* ─── STEP ANIMATION ─── */
+        .step-content { display: none; }
+
+        .step-content.active {
+            display: block;
+            animation: fadeSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── SUCCESS ─── */
+        #successView {
+            display: none;
+            padding: 64px 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px; height: 80px;
+            background: var(--green-dim);
+            border: 1px solid rgba(57,229,140,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon svg { width: 36px; height: 36px; color: var(--green); }
+
+        #successView h2 {
+            font-family: var(--font-display);
+            font-size: 32px;
             font-weight: 800;
-            text-shadow: 0 0 15px var(--cian-glow);
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff, var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .option-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+        #successView p {
+            color: var(--text-dim);
+            font-size: 15px;
+            max-width: 420px;
+            margin: 0 auto 32px;
+            line-height: 1.7;
         }
 
-        .option-btn:hover {
-            border-color: var(--cian-intenso);
-            background: rgba(0, 229, 255, 0.05);
+        .alert-box {
+            background: rgba(240,180,41,0.06);
+            border: 1px solid rgba(240,180,41,0.25);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            max-width: 440px;
+            margin: 0 auto 32px;
+            text-align: left;
         }
 
-        .option-btn.selected {
-            background: var(--cian-intenso);
-            color: #000;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--cian-intenso);
+        .alert-box .alert-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            margin-bottom: 8px;
         }
 
-        input[type="checkbox"], input[type="radio"] {
-            accent-color: var(--cian-intenso);
+        .alert-box p {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin: 0;
         }
 
-        /* Estilo para el ícono de rayo en el header */
-        .header-icon {
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid var(--cian-intenso);
-            box-shadow: 0 0 15px var(--cian-glow);
+        .btn-reset {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
         }
+
+        .btn-reset:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+
+        /* ─── EXPAND AREA ─── */
+        .expand-area {
+            display: none;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .expand-area textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 13px;
+            resize: vertical;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .expand-area textarea:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0,220,255,0.08);
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .footer a { color: var(--cyan); text-decoration: none; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,220,255,0.2); border-radius: 4px; }
     </style>
 </head>
-<body class="p-4 md:p-12">
+<body>
 
-    <div class="max-w-4xl mx-auto w-full bevel-border">
-        <div class="glass-card flex-grow flex flex-col">
-            <!-- Header Mejorado -->
-            <div class="bg-[#001a2e] p-8 text-white relative border-b border-white/10">
-                <div class="flex flex-col items-center gap-4">
-                    <div class="header-icon p-3 rounded-xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-[var(--cian-intenso)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <div class="text-center">
-                        <span class="logo-cian text-xl tracking-[0.3em] font-black uppercase mb-1 block">DATAFLOW IA</span>
-                        <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-transparent">Levantamiento e-Learning</h1>
-                        <p class="text-blue-400 text-xs mt-3 font-semibold tracking-[0.2em] opacity-80 uppercase">Estándar de Calidad Dataflow IA & Mutual</p>
-                    </div>
-                </div>
-            </div>
+<canvas id="bg-canvas"></canvas>
 
-            <!-- Progress Bar -->
-            <div class="w-full bg-white/5 h-1.5">
-                <div id="progressBar" class="progress-bar bg-[#8cc63f] h-full w-[14%]"></div>
-            </div>
+<div class="shell">
 
-            <form id="mutualForm" class="p-8 md:p-12">
-                
-                <!-- Sección 1: Datos Generales -->
-                <div class="step-content active" data-step="1">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
-                        <span class="text-[var(--cian-intenso)]">01</span> Datos Generales
-                    </h2>
-                    <div class="space-y-8">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-400 mb-2">Nombre tentativo del curso</label>
-                            <input type="text" name="nombre_curso" id="nombre_curso" class="w-full p-4 rounded-xl input-dark" placeholder="Ej: Seguridad en Altura">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-400 mb-2">Tema central y foco</label>
-                            <textarea name="tema_foco" id="tema_foco" rows="3" class="w-full p-4 rounded-xl input-dark" placeholder="Describa el objetivo principal..."></textarea>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label class="flex items-center p-4 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition">
-                                <input type="checkbox" name="publico" value="Operarios" class="w-5 h-5"> <span class="ml-3">Operarios</span>
-                            </label>
-                            <label class="flex items-center p-4 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition">
-                                <input type="checkbox" name="publico" value="Administrativos" class="w-5 h-5"> <span class="ml-3">Administrativos</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección 2: Duración y Alcance -->
-                <div class="step-content" data-step="2">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
-                        <span class="text-[var(--cian-intenso)]">02</span> Duración y Alcance
-                    </h2>
-                    <div class="space-y-8">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-400 mb-4">Duración estimada</label>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '30 min')">30 min</button>
-                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '60 min')">60 min</button>
-                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '90 min')">90 min</button>
-                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '120 min')">120 min</button>
-                            </div>
-                            <input type="hidden" name="duracion_val" id="duracion_val">
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <label class="block text-sm font-semibold text-gray-400">Profundidad de contenidos</label>
-                            <div class="grid grid-cols-1 gap-3">
-                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <input type="checkbox" name="profundidad" value="Básico (3 preguntas)" class="w-5 h-5">
-                                    <span class="ml-3">Básico con cuestionario de 3 preguntas</span>
-                                </label>
-                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <input type="checkbox" name="profundidad" value="Profundo (5 o más preguntas)" class="w-5 h-5">
-                                    <span class="ml-3">Profundo con cuestionario de 5 o más preguntas</span>
-                                </label>
-                                <label class="flex flex-col p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="profundidad" value="Otro" id="checkOtroProfundidad" class="w-5 h-5" onchange="toggleDetalle(this, 'containerOtroProfundidad')">
-                                        <span class="ml-3 font-semibold">Otro</span>
-                                    </div>
-                                    <div id="containerOtroProfundidad" class="mt-4 hidden">
-                                        <textarea name="detalle_otro_profundidad" id="detalle_otro_profundidad" class="w-full p-4 rounded-xl input-dark text-sm" rows="2" placeholder="Detalle la profundidad requerida..."></textarea>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección 3: Recursos -->
-                <div class="step-content" data-step="3">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">03</span> Recursos</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Animación IA" class="w-5 h-5"><span class="ml-3">Animación con IA</span></label>
-                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Gamificación" class="w-5 h-5"><span class="ml-3">Gamificación</span></label>
-                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Video Terreno" class="w-5 h-5"><span class="ml-3">Video Terreno</span></label>
-                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Infografía" class="w-5 h-5"><span class="ml-3">Infografías</span></label>
-                    </div>
-                </div>
-
-                <!-- Sección 4: Evaluación -->
-                <div class="step-content" data-step="4">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
-                        <span class="text-[var(--cian-intenso)]">04</span> Evaluación
-                    </h2>
-                    <div class="space-y-6">
-                        <div class="space-y-4">
-                            <label class="block text-sm font-semibold text-gray-400">Tipo de evaluación (marque una o más)</label>
-                            <div class="grid grid-cols-1 gap-3">
-                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <input type="checkbox" name="tipo_evaluacion" value="Cerradas 3 a 5" class="w-5 h-5">
-                                    <span class="ml-3">1) Preguntas con respuestas cerradas, 3 a 5</span>
-                                </label>
-                                <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <input type="checkbox" name="tipo_evaluacion" value="Mixtas" class="w-5 h-5">
-                                    <span class="ml-3">2) Preguntas mixtas cerradas y para desarrollo</span>
-                                </label>
-                                <label class="flex flex-col p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer">
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="tipo_evaluacion" value="Otro" id="checkOtroEvaluacion" class="w-5 h-5" onchange="toggleDetalle(this, 'containerOtroEvaluacion')">
-                                        <span class="ml-3 font-semibold">3) Otro</span>
-                                    </div>
-                                    <div id="containerOtroEvaluacion" class="mt-4 hidden">
-                                        <textarea name="detalle_otro_evaluacion" id="detalle_otro_evaluacion" class="w-full p-4 rounded-xl input-dark text-sm" rows="2" placeholder="Detalle el tipo de evaluación..."></textarea>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-400 mb-2">Finalidad de la evaluación</label>
-                            <select name="uso_evaluacion" class="w-full p-4 rounded-xl input-dark">
-                                <option value="Verificación">Verificación de aprendizaje</option>
-                                <option value="Certificación">Certificación Formal</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Secciones 5 a 7 -->
-                <div class="step-content" data-step="5">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">05</span> Plazos</h2>
-                    <div class="space-y-4">
-                         <label class="block text-sm font-semibold text-gray-400">Fecha estimada de lanzamiento</label>
-                         <input type="date" name="fecha_limite" class="w-full p-4 rounded-xl input-dark">
-                    </div>
-                </div>
-                <div class="step-content" data-step="6">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">06</span> Entrega</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center cursor-pointer hover:bg-white/10 transition">
-                            <input type="checkbox" name="entrega" value="SCORM" class="mb-2 block mx-auto"> SCORM
-                        </label>
-                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center cursor-pointer hover:bg-white/10 transition">
-                            <input type="checkbox" name="entrega" value="Editables" class="mb-2 block mx-auto"> Editables
-                        </label>
-                    </div>
-                </div>
-                <div class="step-content" data-step="7">
-                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">07</span> Información Final</h2>
-                    <textarea name="requerimientos_lms" rows="4" class="w-full p-4 rounded-xl input-dark" placeholder="Especificaciones técnicas adicionales..."></textarea>
-                </div>
-
-                <!-- Botonera -->
-                <div class="mt-12 flex justify-between items-center">
-                    <button type="button" id="prevBtn" class="px-8 py-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 hidden transition font-medium">Anterior</button>
-                    <button type="button" id="nextBtn" class="ml-auto px-10 py-3 bg-[#00548f] text-white rounded-xl hover:bg-blue-600 transition font-bold shadow-lg shadow-blue-900/20">Siguiente</button>
-                    <button type="submit" id="submitBtn" class="ml-auto px-10 py-3 bg-[#8cc63f] text-white rounded-xl hover:bg-green-500 transition font-bold shadow-lg shadow-green-900/20 hidden uppercase tracking-wider">Finalizar y Enviar</button>
-                </div>
-            </form>
-
-            <!-- Success con Instrucción Clara -->
-            <div id="successMessage" class="hidden p-20 text-center">
-                <div class="mb-8 inline-block p-6 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20 shadow-2xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h2 class="text-4xl font-black text-white mb-4">Levantamiento Generado</h2>
-                <div class="bg-white/5 border border-white/10 p-6 rounded-2xl max-w-md mx-auto">
-                    <p class="text-gray-300 mb-4 leading-relaxed">Se ha redactado el correo automáticamente en su aplicación local.</p>
-                    <p class="text-[var(--cian-intenso)] font-bold text-lg mb-4">⚠️ IMPORTANTE:</p>
-                    <p class="text-white font-medium">Debe presionar <span class="underline decoration-2 underline-offset-4">"ENVIAR"</span> en la ventana de su correo que se acaba de abrir.</p>
-                </div>
-                <button onclick="location.reload()" class="mt-10 px-8 py-3 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition font-bold text-gray-300">Crear Otro Levantamiento</button>
-            </div>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand-badge">
+            <span class="dot"></span>
+            <span>DATAFLOW IA</span>
         </div>
+        <h1>Levantamiento<br>e-Learning</h1>
+        <p>Complete el formulario para comenzar el diseño de su curso digital</p>
+    </header>
+
+    <!-- STEP DOTS -->
+    <div class="step-nav" id="stepNav"></div>
+
+    <!-- MAIN CARD -->
+    <div class="card">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width:14.28%"></div>
+        </div>
+
+        <form id="mainForm">
+            <div class="form-body">
+
+                <!-- ─── PASO 1: Datos Generales ─── -->
+                <div class="step-content active" data-step="1">
+                    <div class="section-header">
+                        <span class="section-num">01</span>
+                        <div class="section-title">Datos Generales
+                            <small>Cuéntenos sobre el curso que desea desarrollar</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Nombre tentativo del curso</label>
+                        <input type="text" name="nombre_curso" placeholder="Ej: Seguridad en Altura Nivel 2">
+                    </div>
+                    <div class="field">
+                        <label>Tema central y foco del curso</label>
+                        <textarea name="tema_foco" placeholder="Describa el objetivo principal, qué debe aprender el participante al finalizar..."></textarea>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Público objetivo</div>
+                        <div class="option-grid cols-2" style="gap:10px">
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="publico" value="Operarios">
+                                <span class="check-box">
+                                    <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg>
+                                </span>
+                                <span class="check-label">Operarios</span>
+                            </label>
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="publico" value="Administrativos">
+                                <span class="check-box">
+                                    <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg>
+                                </span>
+                                <span class="check-label">Administrativos</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── PASO 2: Duración y Alcance ─── -->
+                <div class="step-content" data-step="2">
+                    <div class="section-header">
+                        <span class="section-num">02</span>
+                        <div class="section-title">Duración y Alcance
+                            <small>Defina la extensión y profundidad del contenido</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Duración estimada del curso</div>
+                        <div class="option-grid cols-4">
+                            <button type="button" class="opt-btn" onclick="selectOpt(this,'duracion','30 min')">30 min</button>
+                            <button type="button" class="opt-btn" onclick="selectOpt(this,'duracion','60 min')">60 min</button>
+                            <button type="button" class="opt-btn" onclick="selectOpt(this,'duracion','90 min')">90 min</button>
+                            <button type="button" class="opt-btn" onclick="selectOpt(this,'duracion','120 min')">120 min</button>
+                        </div>
+                        <input type="hidden" name="duracion_val" id="duracion_val">
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Profundidad de contenidos</div>
+                        <div style="display:flex;flex-direction:column;gap:10px">
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="profundidad" value="Básico (3 preguntas)">
+                                <span class="check-box">
+                                    <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg>
+                                </span>
+                                <span class="check-label">Básico — Cuestionario de 3 preguntas</span>
+                            </label>
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="profundidad" value="Profundo (5 o más preguntas)">
+                                <span class="check-box">
+                                    <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg>
+                                </span>
+                                <span class="check-label">Profundo — Cuestionario de 5 o más preguntas</span>
+                            </label>
+                            <label class="check-card" id="card-otro-profundidad" onclick="toggleCheckExpand(this,'expand-otro-profundidad')">
+                                <input type="checkbox" name="profundidad" value="Otro">
+                                <span class="check-box">
+                                    <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg>
+                                </span>
+                                <div style="flex:1">
+                                    <span class="check-label">Otro — Especificar</span>
+                                    <div class="expand-area" id="expand-otro-profundidad">
+                                        <textarea name="detalle_otro_profundidad" id="detalle_otro_profundidad" placeholder="Describa la profundidad requerida..."></textarea>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── PASO 3: Recursos ─── -->
+                <div class="step-content" data-step="3">
+                    <div class="section-header">
+                        <span class="section-num">03</span>
+                        <div class="section-title">Recursos Multimediales
+                            <small>Seleccione los elementos que integrará el curso</small>
+                        </div>
+                    </div>
+                    <div class="option-grid cols-2" style="gap:10px">
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="recursos" value="Animación IA">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <span class="check-label">Animación con IA</span>
+                        </label>
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="recursos" value="Gamificación">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <span class="check-label">Gamificación</span>
+                        </label>
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="recursos" value="Video Terreno">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <span class="check-label">Video en Terreno</span>
+                        </label>
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="recursos" value="Infografía">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <span class="check-label">Infografías</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ─── PASO 4: Evaluación ─── -->
+                <div class="step-content" data-step="4">
+                    <div class="section-header">
+                        <span class="section-num">04</span>
+                        <div class="section-title">Evaluación
+                            <small>Configure cómo se medirá el aprendizaje</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Tipo de evaluación</div>
+                        <div style="display:flex;flex-direction:column;gap:10px">
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="tipo_evaluacion" value="Cerradas 3 a 5">
+                                <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                                <span class="check-label">Preguntas con respuestas cerradas (3 a 5)</span>
+                            </label>
+                            <label class="check-card" onclick="toggleCheck(this)">
+                                <input type="checkbox" name="tipo_evaluacion" value="Mixtas">
+                                <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                                <span class="check-label">Preguntas mixtas — cerradas y para desarrollo</span>
+                            </label>
+                            <label class="check-card" onclick="toggleCheckExpand(this,'expand-otro-eval')">
+                                <input type="checkbox" name="tipo_evaluacion" value="Otro">
+                                <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                                <div style="flex:1">
+                                    <span class="check-label">Otro — Especificar</span>
+                                    <div class="expand-area" id="expand-otro-eval">
+                                        <textarea name="detalle_otro_evaluacion" id="detalle_otro_evaluacion" placeholder="Detalle el tipo de evaluación..."></textarea>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Finalidad de la evaluación</label>
+                        <select name="uso_evaluacion">
+                            <option value="Verificación">Verificación de aprendizaje</option>
+                            <option value="Certificación">Certificación Formal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ─── PASO 5: Plazos ─── -->
+                <div class="step-content" data-step="5">
+                    <div class="section-header">
+                        <span class="section-num">05</span>
+                        <div class="section-title">Plazos del Proyecto
+                            <small>Establezca la fecha objetivo de lanzamiento</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Fecha estimada de lanzamiento</label>
+                        <input type="date" name="fecha_limite">
+                    </div>
+                </div>
+
+                <!-- ─── PASO 6: Entrega ─── -->
+                <div class="step-content" data-step="6">
+                    <div class="section-header">
+                        <span class="section-num">06</span>
+                        <div class="section-title">Formato de Entrega
+                            <small>Seleccione el formato final del curso</small>
+                        </div>
+                    </div>
+                    <div class="option-grid cols-2" style="gap:10px">
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="entrega" value="SCORM">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <div>
+                                <span class="check-label" style="display:block">SCORM</span>
+                                <span style="font-size:12px;color:var(--text-muted)">Compatible con LMS</span>
+                            </div>
+                        </label>
+                        <label class="check-card" onclick="toggleCheck(this)">
+                            <input type="checkbox" name="entrega" value="Editables">
+                            <span class="check-box"><svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3.5 3.5L11 1"/></svg></span>
+                            <div>
+                                <span class="check-label" style="display:block">Editables</span>
+                                <span style="font-size:12px;color:var(--text-muted)">Archivos fuente</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ─── PASO 7: Información Final ─── -->
+                <div class="step-content" data-step="7">
+                    <div class="section-header">
+                        <span class="section-num">07</span>
+                        <div class="section-title">Información Final
+                            <small>Especificaciones adicionales o requerimientos LMS</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Requerimientos técnicos y observaciones</label>
+                        <textarea name="requerimientos_lms" rows="5" placeholder="Indique plataforma LMS, compatibilidades específicas, restricciones técnicas u otras observaciones relevantes para el proyecto..."></textarea>
+                    </div>
+                </div>
+
+            </div><!-- /form-body -->
+
+            <!-- NAV BAR -->
+            <div class="nav-bar">
+                <span class="step-counter">Paso <strong id="stepLabel">1</strong> de 7</span>
+                <div class="nav-right">
+                    <button type="button" class="btn btn-ghost" id="prevBtn" style="display:none">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+                        Anterior
+                    </button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">
+                        Siguiente
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg>
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitBtn" style="display:none">
+                        Enviar Levantamiento
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h12M8 2l6 6-6 6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- SUCCESS VIEW -->
+        <div id="successView">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h2>¡Levantamiento Completado!</h2>
+            <p>El formulario ha sido procesado. Su aplicación de correo se ha abierto con toda la información lista para enviar.</p>
+            <div class="alert-box">
+                <div class="alert-title">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v6M8 11v2"/><circle cx="8" cy="8" r="7"/></svg>
+                    Acción requerida
+                </div>
+                <p>Debe presionar <strong style="color:var(--text)">"Enviar"</strong> en la ventana de correo que se acaba de abrir para completar el envío.</p>
+            </div>
+            <button class="btn-reset" onclick="location.reload()">Crear otro levantamiento</button>
+        </div>
+
+    </div><!-- /card -->
+
+    <div class="footer">
+        Impulsado por <a href="#">DATAFLOW IA</a> &nbsp;·&nbsp; Estándar de calidad e-Learning
     </div>
 
-    <script>
-        let currentStep = 1;
-        const totalSteps = 7;
-        const form = document.getElementById('mutualForm');
-        const nextBtn = document.getElementById('nextBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        const progressBar = document.getElementById('progressBar');
-        const successMessage = document.getElementById('successMessage');
+</div><!-- /shell -->
 
-        function toggleDetalle(checkbox, containerId) {
-            const container = document.getElementById(containerId);
-            if (checkbox.checked) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
-        }
+<script>
+// ─── BACKGROUND CANVAS ───
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
 
-        function updateStep() {
-            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
-            document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
-            const progress = (currentStep / totalSteps) * 100;
-            progressBar.style.width = `${progress}%`;
-            prevBtn.classList.toggle('hidden', currentStep === 1);
-            if (currentStep === totalSteps) {
-                nextBtn.classList.add('hidden');
-                submitBtn.classList.remove('hidden');
-            } else {
-                nextBtn.classList.remove('hidden');
-                submitBtn.classList.add('hidden');
-            }
-        }
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-        nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) { currentStep++; updateStep(); } });
-        prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; updateStep(); } });
+const particles = Array.from({length: 60}, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.5 + 0.3,
+    vx: (Math.random() - 0.5) * 0.15,
+    vy: (Math.random() - 0.5) * 0.15,
+    alpha: Math.random() * 0.4 + 0.1
+}));
 
-        function selectOption(btn, name, value) {
-            btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            document.getElementById(`${name}_val`).value = value;
-        }
+function drawBg() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,220,255,${p.alpha})`;
+        ctx.fill();
+    });
+    // Grid lines
+    ctx.strokeStyle = 'rgba(0,220,255,0.025)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 80) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 80) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    requestAnimationFrame(drawBg);
+}
+drawBg();
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            const profundidades = Array.from(document.querySelectorAll('input[name="profundidad"]:checked')).map(i => {
-                if(i.value === 'Otro') return `Otro (${document.getElementById('detalle_otro_profundidad').value})`;
-                return i.value;
-            }).join(', ');
+// ─── STEP DOTS ───
+const totalSteps = 7;
+const stepNav = document.getElementById('stepNav');
+for (let i = 1; i <= totalSteps; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === 1 ? ' active' : '');
+    d.id = `dot-${i}`;
+    stepNav.appendChild(d);
+}
 
-            const tiposEvaluacion = Array.from(document.querySelectorAll('input[name="tipo_evaluacion"]:checked')).map(i => {
-                if(i.value === 'Otro') return `Otro (${document.getElementById('detalle_otro_evaluacion').value})`;
-                return i.value;
-            }).join(', ');
+// ─── FORM LOGIC ───
+let currentStep = 1;
+const form = document.getElementById('mainForm');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+const submitBtn = document.getElementById('submitBtn');
+const progressFill = document.getElementById('progressFill');
+const stepLabel = document.getElementById('stepLabel');
+const successView = document.getElementById('successView');
 
-            const recursos = Array.from(document.querySelectorAll('input[name="recursos"]:checked')).map(i => i.value).join(', ');
-            const entrega = Array.from(document.querySelectorAll('input[name="entrega"]:checked')).map(i => i.value).join(', ');
-            const publico = Array.from(document.querySelectorAll('input[name="publico"]:checked')).map(i => i.value).join(', ');
+function updateUI() {
+    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
+    
+    progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+    stepLabel.textContent = currentStep;
 
-            let body = `FORMULARIO DE LEVANTAMIENTO E-LEARNING\n`;
-            body += `========================================\n\n`;
-            body += `1. DATOS GENERALES\n`;
-            body += `- Nombre Curso: ${data.nombre_curso || 'N/A'}\n`;
-            body += `- Público Objetivo: ${publico || 'N/A'}\n`;
-            body += `- Tema/Foco: ${data.tema_foco || 'N/A'}\n\n`;
-            
-            body += `2. DURACIÓN Y ALCANCE\n`;
-            body += `- Duración: ${data.duracion_val || 'No definida'}\n`;
-            body += `- Profundidad Contenido: ${profundidades || 'N/A'}\n\n`;
-            
-            body += `3. RECURSOS REQUERIDOS\n`;
-            body += `- Items: ${recursos || 'Ninguno'}\n\n`;
-            
-            body += `4. EVALUACIÓN\n`;
-            body += `- Tipos: ${tiposEvaluacion || 'N/A'}\n`;
-            body += `- Finalidad: ${data.uso_evaluacion || 'N/A'}\n\n`;
-            
-            body += `5. PLAZOS\n`;
-            body += `- Fecha Lanzamiento: ${data.fecha_limite || 'N/A'}\n\n`;
-            
-            body += `6. ENTREGA\n`;
-            body += `- Formato: ${entrega || 'N/A'}\n\n`;
-            
-            body += `7. INFORMACIÓN FINAL\n`;
-            body += `- Requerimientos: ${data.requerimientos_lms || 'Sin comentarios'}\n\n`;
-            body += `========================================`;
+    for (let i = 1; i <= totalSteps; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    }
 
-            const mailtoLink = `mailto:contacto@dataflowia.com?subject=Levantamiento e-Learning: ${encodeURIComponent(data.nombre_curso || 'Sin Nombre')}&body=${encodeURIComponent(body)}`;
-            
-            form.classList.add('hidden');
-            progressBar.parentElement.classList.add('hidden');
-            successMessage.classList.remove('hidden');
+    prevBtn.style.display = currentStep === 1 ? 'none' : '';
+    nextBtn.style.display = currentStep === totalSteps ? 'none' : '';
+    submitBtn.style.display = currentStep === totalSteps ? '' : 'none';
+}
 
-            // Abrir el cliente de correo
-            window.location.href = mailtoLink;
-        });
+nextBtn.addEventListener('click', () => { if (currentStep < totalSteps) { currentStep++; updateUI(); window.scrollTo({top: 0, behavior: 'smooth'}); } });
+prevBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; updateUI(); window.scrollTo({top: 0, behavior: 'smooth'}); } });
 
-        const card = document.querySelector('.glass-card');
-        document.addEventListener('mousemove', (e) => {
-            if (window.innerWidth < 768) return;
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 60;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 60;
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        });
-        document.addEventListener('mouseleave', () => card.style.transform = `rotateY(0deg) rotateX(0deg)`);
-    </script>
+// ─── OPTION BUTTONS ───
+function selectOpt(btn, name, value) {
+    btn.closest('.option-grid').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById(`${name}_val`).value = value;
+}
+
+// ─── CHECK CARDS ───
+function toggleCheck(card) {
+    const cb = card.querySelector('input[type="checkbox"]');
+    card.classList.toggle('checked', cb.checked);
+}
+
+function toggleCheckExpand(card, expandId) {
+    const cb = card.querySelector('input[type="checkbox"]');
+    card.classList.toggle('checked', cb.checked);
+    const area = document.getElementById(expandId);
+    if (area) area.style.display = cb.checked ? 'block' : 'none';
+}
+
+// ─── SUBMIT ───
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const d = Object.fromEntries(fd);
+
+    const profundidades = [...document.querySelectorAll('input[name="profundidad"]:checked')]
+        .map(i => i.value === 'Otro' ? `Otro (${document.getElementById('detalle_otro_profundidad').value})` : i.value).join(', ');
+    const tiposEval = [...document.querySelectorAll('input[name="tipo_evaluacion"]:checked')]
+        .map(i => i.value === 'Otro' ? `Otro (${document.getElementById('detalle_otro_evaluacion').value})` : i.value).join(', ');
+    const recursos = [...document.querySelectorAll('input[name="recursos"]:checked')].map(i => i.value).join(', ');
+    const entrega = [...document.querySelectorAll('input[name="entrega"]:checked')].map(i => i.value).join(', ');
+    const publico = [...document.querySelectorAll('input[name="publico"]:checked')].map(i => i.value).join(', ');
+
+    const body = [
+        `FORMULARIO DE LEVANTAMIENTO E-LEARNING`,
+        `DATAFLOW IA — ${new Date().toLocaleDateString('es-CL')}`,
+        `${'═'.repeat(44)}`,
+        ``,
+        `1. DATOS GENERALES`,
+        `   Nombre del Curso : ${d.nombre_curso || 'N/A'}`,
+        `   Público Objetivo  : ${publico || 'N/A'}`,
+        `   Tema / Foco       : ${d.tema_foco || 'N/A'}`,
+        ``,
+        `2. DURACIÓN Y ALCANCE`,
+        `   Duración estimada : ${d.duracion_val || 'No definida'}`,
+        `   Profundidad       : ${profundidades || 'N/A'}`,
+        ``,
+        `3. RECURSOS REQUERIDOS`,
+        `   Elementos         : ${recursos || 'Ninguno seleccionado'}`,
+        ``,
+        `4. EVALUACIÓN`,
+        `   Tipo              : ${tiposEval || 'N/A'}`,
+        `   Finalidad         : ${d.uso_evaluacion || 'N/A'}`,
+        ``,
+        `5. PLAZOS`,
+        `   Lanzamiento       : ${d.fecha_limite || 'N/A'}`,
+        ``,
+        `6. ENTREGA`,
+        `   Formato           : ${entrega || 'N/A'}`,
+        ``,
+        `7. INFORMACIÓN ADICIONAL`,
+        `   Requerimientos    : ${d.requerimientos_lms || 'Sin observaciones'}`,
+        ``,
+        `${'═'.repeat(44)}`,
+        `Enviado desde el formulario DATAFLOW IA`
+    ].join('\n');
+
+    const subject = `Levantamiento e-Learning: ${d.nombre_curso || 'Sin nombre'}`;
+    window.location.href = `mailto:contacto@dataflowia.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    form.style.display = 'none';
+    document.querySelector('.progress-track').style.display = 'none';
+    successView.style.display = 'block';
+});
+</script>
 </body>
 </html>
