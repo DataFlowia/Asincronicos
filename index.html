@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levantamiento de Cursos e-Learning - DATAFLOW IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --mutual-blue: #00548f;
+            --mutual-green: #8cc63f;
+            --bg-dark: #0a0f18;
+            --card-dark: #161e2d;
+            --cian-intenso: #00e5ff;
+            --cian-glow: rgba(0, 229, 255, 0.4);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+
+        /* Contenedor Principal con Efecto 3D */
+        .glass-card {
+            background: var(--card-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px) rotateX(2deg) rotateY(-1deg);
+            border-color: var(--cian-intenso);
+            box-shadow: 0 0 30px var(--cian-glow);
+        }
+
+        /* Borde Biselado con Animación */
+        .bevel-border {
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,229,255,0.5) 50%, rgba(0,0,0,0.5) 100%);
+            border-radius: 24px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 15px var(--mutual-green);
+        }
+
+        /* Estilos de inputs oscuros */
+        .input-dark {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-dark:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--cian-intenso);
+            box-shadow: 0 0 10px var(--cian-glow);
+            outline: none;
+        }
+
+        .logo-cian {
+            color: var(--cian-intenso);
+            font-weight: 800;
+            text-shadow: 0 0 15px var(--cian-glow);
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            border-color: var(--cian-intenso);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .option-btn.selected {
+            background: var(--cian-intenso);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 15px var(--cian-intenso);
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            accent-color: var(--cian-intenso);
+        }
+
+        footer a:hover {
+            color: var(--cian-intenso);
+            text-shadow: 0 0 8px var(--cian-glow);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div class="max-w-4xl mx-auto w-full bevel-border">
+        <div class="glass-card flex-grow flex flex-col">
+            <!-- Header Corregido: Se eliminó el icono del rayo -->
+            <div class="bg-[#001a2e] p-8 text-white relative border-b border-white/10">
+                <div class="flex flex-col items-center gap-2">
+                    <!-- Solo texto del Logo DATAFLOW IA -->
+                    <div class="mb-2">
+                        <span class="logo-cian text-2xl tracking-[0.2em] font-black uppercase">DATAFLOW IA</span>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h1 class="text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white to-blue-300 bg-clip-text text-transparent">Levantamiento e-Learning</h1>
+                        <p class="text-blue-400 text-sm mt-2 font-medium tracking-widest opacity-80 uppercase">Estándar de Calidad Dataflow IA & Mutual</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-white/5 h-1.5">
+                <div id="progressBar" class="progress-bar bg-[#8cc63f] h-full w-[14%]"></div>
+            </div>
+
+            <form id="mutualForm" class="p-8 md:p-12">
+                
+                <!-- Sección 1: Datos Generales -->
+                <div class="step-content active" data-step="1">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+                        <span class="text-[var(--cian-intenso)]">01</span> Datos Generales
+                    </h2>
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-400 mb-2">Nombre tentativo del curso</label>
+                            <input type="text" name="nombre_curso" id="nombre_curso" class="w-full p-4 rounded-xl input-dark" placeholder="Ej: Seguridad en Altura">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-400 mb-2">Tema central y foco</label>
+                            <textarea name="tema_foco" id="tema_foco" rows="3" class="w-full p-4 rounded-xl input-dark" placeholder="Describa el objetivo principal..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label class="flex items-center p-4 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition">
+                                <input type="checkbox" name="publico" value="Operarios" class="w-5 h-5"> <span class="ml-3">Operarios</span>
+                            </label>
+                            <label class="flex items-center p-4 rounded-xl border border-white/5 bg-white/5 cursor-pointer hover:bg-white/10 transition">
+                                <input type="checkbox" name="publico" value="Administrativos" class="w-5 h-5"> <span class="ml-3">Administrativos</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Duración -->
+                <div class="step-content" data-step="2">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+                        <span class="text-[var(--cian-intenso)]">02</span> Duración y Alcance
+                    </h2>
+                    <div class="space-y-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-400 mb-4">Duración estimada</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '30 min')">30 min</button>
+                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '60 min')">60 min</button>
+                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '90 min')">90 min</button>
+                                <button type="button" class="option-btn p-4 rounded-xl text-sm" onclick="selectOption(this, 'duracion', '120 min')">120 min</button>
+                            </div>
+                            <input type="hidden" name="duracion_val" id="duracion_val">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-400 mb-2">Profundidad de contenidos</label>
+                            <select name="profundidad" id="profundidad" class="w-full p-4 rounded-xl input-dark">
+                                <option value="Sensibilización">Básico / Sensibilización</option>
+                                <option value="Casos Aplicados">Intermedio / Casos prácticos</option>
+                                <option value="Herramientas Prácticas">Avanzado / Herramientas de acción</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Recursos -->
+                <div class="step-content" data-step="3">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">03</span> Recursos</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Animación IA" class="w-5 h-5"><span class="ml-3">Animación con IA</span></label>
+                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Gamificación" class="w-5 h-5"><span class="ml-3">Gamificación</span></label>
+                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Video Terreno" class="w-5 h-5"><span class="ml-3">Video Terreno</span></label>
+                        <label class="flex items-center p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="recursos" value="Infografía" class="w-5 h-5"><span class="ml-3">Infografías</span></label>
+                    </div>
+                </div>
+
+                <div class="step-content" data-step="4">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">04</span> Evaluación</h2>
+                    <div class="space-y-4">
+                        <label class="block text-sm font-semibold text-gray-400">Finalidad de la evaluación</label>
+                        <select name="uso_evaluacion" class="w-full p-4 rounded-xl input-dark">
+                            <option value="Verificación">Verificación de aprendizaje</option>
+                            <option value="Certificación">Certificación Formal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="step-content" data-step="5">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">05</span> Plazos</h2>
+                    <div class="space-y-4">
+                        <label class="block text-sm font-semibold text-gray-400">Fecha estimada de lanzamiento</label>
+                        <input type="date" name="fecha_limite" class="w-full p-4 rounded-xl input-dark">
+                    </div>
+                </div>
+
+                <div class="step-content" data-step="6">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">06</span> Entrega</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="entrega" value="SCORM" class="mb-2 block mx-auto"> SCORM</label>
+                        <label class="p-4 bg-white/5 rounded-xl border border-white/5 text-center hover:bg-white/10 transition cursor-pointer"><input type="checkbox" name="entrega" value="Editables" class="mb-2 block mx-auto"> Editables</label>
+                    </div>
+                </div>
+
+                <div class="step-content" data-step="7">
+                    <h2 class="text-2xl font-bold mb-8 flex items-center gap-3"><span class="text-[var(--cian-intenso)]">07</span> Información Final</h2>
+                    <div class="space-y-4">
+                        <label class="block text-sm font-semibold text-gray-400">Comentarios adicionales o requerimientos LMS</label>
+                        <textarea name="requerimientos_lms" rows="4" class="w-full p-4 rounded-xl input-dark" placeholder="Detalle aquí cualquier especificación técnica..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Botonera -->
+                <div class="mt-12 flex justify-between items-center">
+                    <button type="button" id="prevBtn" class="px-8 py-3 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 hidden transition font-medium">Anterior</button>
+                    <button type="button" id="nextBtn" class="ml-auto px-10 py-3 bg-[#00548f] text-white rounded-xl hover:bg-blue-600 transition font-bold shadow-lg shadow-blue-900/20">Siguiente</button>
+                    <button type="submit" id="submitBtn" class="ml-auto px-10 py-3 bg-[#8cc63f] text-white rounded-xl hover:bg-green-500 transition font-bold shadow-lg shadow-green-900/20 hidden uppercase tracking-wider">Enviar Levantamiento</button>
+                </div>
+            </form>
+
+            <!-- Success -->
+            <div id="successMessage" class="hidden p-20 text-center">
+                <div class="mb-8 inline-block p-6 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20 shadow-2xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h2 class="text-4xl font-black text-white mb-4">¡Levantamiento Enviado!</h2>
+                <p class="text-gray-400 text-lg">Se ha generado la solicitud para <strong>contacto@dataflowia.com</strong>.</p>
+                <button onclick="location.reload()" class="mt-10 px-8 py-3 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition font-bold text-gray-300">Iniciar Nuevo Registro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-4xl mx-auto w-full text-center text-gray-500 text-sm py-12">
+        <div class="flex flex-col md:flex-row justify-center items-center gap-6 mb-6">
+            <a href="https://www.dataflowia.com" target="_blank" class="font-bold tracking-widest text-gray-400 hover:text-[var(--cian-intenso)] transition uppercase">WWW.DATAFLOWIA.COM</a>
+            <span class="hidden md:block text-gray-700">|</span>
+            <a href="mailto:contacto@dataflowia.com" class="font-bold tracking-widest text-gray-400 hover:text-[var(--cian-intenso)] transition uppercase">CONTACTO@DATAFLOWIA.COM</a>
+        </div>
+        <div class="flex flex-col items-center gap-2 opacity-60">
+            <p>© 2026 DATAFLOW IA. Todos los derechos reservados.</p>
+            <div class="flex gap-4 mt-2">
+                <div class="w-8 h-1 bg-[var(--cian-intenso)] rounded-full"></div>
+                <div class="w-8 h-1 bg-[#8cc63f] rounded-full"></div>
+                <div class="w-8 h-1 bg-[#00548f] rounded-full"></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 7;
+        const form = document.getElementById('mutualForm');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressBar = document.getElementById('progressBar');
+        const successMessage = document.getElementById('successMessage');
+
+        function updateStep() {
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.add('active');
+
+            const progress = (currentStep / totalSteps) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            prevBtn.classList.toggle('hidden', currentStep === 1);
+            if (currentStep === totalSteps) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps) { currentStep++; updateStep(); }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) { currentStep--; updateStep(); }
+        });
+
+        function selectOption(btn, name, value) {
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById(`${name}_val`).value = value;
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            let body = `LEVANAMIENTO E-LEARNING DATAFLOW IA\n`;
+            body += `====================================\n\n`;
+            body += `CURSO: ${data.nombre_curso || 'Sin nombre'}\n`;
+            body += `OBJETIVO: ${data.tema_foco || 'No descrito'}\n`;
+            body += `DURACIÓN: ${data.duracion_val || 'No definida'}\n`;
+            body += `FECHA LÍMITE: ${data.fecha_limite || 'No definida'}\n\n`;
+            body += `RECURSOS ADICIONALES: ${Array.from(document.querySelectorAll('input[name="recursos"]:checked')).map(i => i.value).join(', ') || 'Ninguno'}\n`;
+            body += `TIPO ENTREGA: ${Array.from(document.querySelectorAll('input[name="entrega"]:checked')).map(i => i.value).join(', ') || 'No especificada'}\n\n`;
+            body += `COMENTARIOS: ${data.requerimientos_lms || 'Sin comentarios'}`;
+
+            const mailtoLink = `mailto:contacto@dataflowia.com?subject=Levantamiento e-Learning: ${encodeURIComponent(data.nombre_curso || 'Nuevo Proyecto')}&body=${encodeURIComponent(body)}`;
+            
+            form.classList.add('hidden');
+            progressBar.parentElement.classList.add('hidden');
+            successMessage.classList.remove('hidden');
+
+            window.location.href = mailtoLink;
+        });
+
+        const card = document.querySelector('.glass-card');
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth < 768) return;
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 60;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 60;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+    </script>
+</body>
+</html>
